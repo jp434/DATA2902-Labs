@@ -1,0 +1,11 @@
+---
+title: "Lab0"
+output: html_document
+date: "2024-07-19"
+---
+
+```{r}
+library("tidyverse")
+library("palmerpenguins")
+```
+
