@@ -58,7 +58,7 @@ server <- function(input, output) {
     output$distPlot <- renderPlot({
         
       penguins %>%  drop_na(sex) %>% ggplot() + 
-        aes(x = .data[[input$var_xaxis]], # could also use aes_string()
+        aes(x = .data[[input$var_xaxis]], # could also use aes_string() instead of .data[[]]
             y = .data[[input$var_yaxis]],
             colour = .data[[input$var_col]]) +
         geom_point() +
