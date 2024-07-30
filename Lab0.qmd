@@ -1,0 +1,131 @@
+---
+title: "Lab0"
+format: html
+editor: visual
+embed-resources: true
+---
+
+## Demo
+
+```{r, message = FALSE}
+library("tidyverse")
+library("palmerpenguins")
+library("janitor")
+library("readr")
+glimpse(penguins_raw)
+# penguins_raw |> glimpse()
+# penguins_raw %>%  glimpse
+
+old_names = colnames(penguins_raw)
+penguins = penguins_raw %>% 
+    janitor::clean_names()
+new_names = colnames(penguins)
+new_names
+```
+
+```{r, message = FALSE, warning=FALSE}
+library("ggplot2")
+penguins = penguins %>% 
+    mutate(species = stringr::word(species, start = 1, end = 1))
+penguins %>%  
+  ggplot() + 
+  # add the aesthetics
+  aes(x = body_mass_g, 
+      y = flipper_length_mm,
+      colour = species) +
+  # add a geometry
+  geom_point() + 
+  # tidy up the labels
+  labs(x = "Body mass (g)",
+       y = "Flipper length (mm)",
+       colour = "Species")
+
+#ggsave(filename = "myfirstggplot.png") to save the plot
+```
+
+## Exercises
+
+1.  Generate a scatter plot for another pair of (numeric) variables
+
+```{r, message = FALSE, warning=FALSE}
+plt = penguins %>%  
+  ggplot() +
+  aes(x = culmen_length_mm, 
+      y = culmen_depth_mm,
+      colour = species) +
+  geom_point() +
+  labs(x = "Culmen Length (mm)", 
+       y = "Culment Depth (mm)", 
+       colour = "Species")
+plt
+```
+
+2.  Colour by sex and use facet_wrap() to generate a plot for each species and island combination.
+
+```{r, message = FALSE, warning=FALSE}
+plt2 = penguins %>%  drop_na(sex) %>% 
+  ggplot() +
+  aes(x = culmen_length_mm, 
+      y = culmen_depth_mm,
+      colour = sex) +
+  geom_point() +
+  labs(x = "Culmen Length (mm)", 
+       y = "Culment Depth (mm)", 
+       colour = "sex")
+plt2 + facet_wrap(vars(species, island))
+```
+
+3.  Try including a line of best fit by adding another geometry layer geom_smooth(method = "lm").
+
+```{r, message = FALSE, warning=FALSE}
+plt + geom_smooth(method = "lm")
+```
+
+4.  Use a different geometry, geom_histogram() to create a histogram for flipper length, coloured by species.
+
+```{r plot, message = FALSE, warning= FALSE}
+#| label: fig-figure
+#| fig-cap: Palmer Penguins 
+
+plt3 = penguins %>% 
+  ggplot() +
+  aes(x = flipper_length_mm, fill = species) +
+  geom_histogram() + 
+  labs(x = "Flipper Length (mm)", y = "Count", fill = "Species", title = "Flipper lengths of penguins by species")
+
+plt3
+```
+
+5.  Save an updated version of your plot using ggsave().
+
+This saves @fig-figure to the working directory.
+
+```{r, message = FALSE, warning= FALSE}
+ggsave(filename = "penguinsplot.png")
+```
+
+6.  Try outputting the data to a CSV file using the write_csv() function which can be found in the readr package.
+
+```{r, message = FALSE, warning = FALSE}
+write_csv(penguins, "penguins_csv")
+```
+
+## Advanced
+
+```{r, message = FALSE, warning=FALSE}
+# install.packages("plotly")
+library("plotly")
+myplot = penguins %>% 
+  ggplot() +
+  # add the aesthetics
+  aes(x = body_mass_g,
+      y = flipper_length_mm,
+      colour = species) +
+  # add a geometry
+  geom_point() +
+  # tidy up the labels
+  labs(x = "Body mass (g)",
+       y = "Flipper length (mm)",
+       colour = "Species")
+plotly::ggplotly(myplot)
+```
