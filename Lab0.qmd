@@ -3,6 +3,7 @@ title: "Lab0"
 format: html
 editor: visual
 embed-resources: true
+theme: superhero
 ---
 
 ## Demo
