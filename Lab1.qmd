@@ -1,0 +1,153 @@
+---
+title: "Lab1"
+format: html
+embed-resources: true
+editor: visual
+theme: minty
+toc: true
+---
+
+```{r, message = FALSE, echo = FALSE}
+library(tidyverse)
+```
+
+# Exercises
+
+## Question 1
+
+Tablet devices are an increasingly important component of the global electronics market. According to a market intelligence research company, the use of tablet devices can be classified into the following user segments.
+
+```{=tex}
+\begin{array}{lcc}
+\text{User Segment} & 2012 ~ \text{percentages} &  \text{Current survey frequency}\\ \hline
+\text{Business-Professional} &          69\% &  102  \\
+\text{Goverment} &   21\%         & 32           \\
+\text{Education}  &      7\% &     12       \\
+\text{Home} & 3\% & 4 \\  \hline
+\text{Total} & 100\% & 150 \\ \hline
+\end{array}
+```
+Do the data provide sufficient evidence to indicate that the figures obtained in the current survey agree with the percentages in 2012?
+
+## Answer:
+
+Significance level: $\alpha = 0.01$.
+
+Hypothesis:
+
+$H_0$ = The figures obtained in the current survey agree with the percentages in 2012.
+
+$H_1$ = The figures obtained in the current survey do not match the percentages in 2012.
+
+Assumptions:
+
+Expected frequencies are sufficiently large. The expectation for "Home" is less than 5, but not drastically enough to influence the test statistic. In future, "Home" and "Education" could be merged to rectify this.
+
+Table:
+
+```{r, echo = FALSE}
+y_i = c(102, 32, 12, 4)
+p_i = c(0.69, 0.21, 0.07, 0.03)
+n = sum(y_i)
+e_i = n * p_i
+e_i = p_i * n
+d_i = ((y_i - e_i)^2)/e_i
+
+df = tibble(
+  User = c("Business-Professional", "Government", "Education", "Home"),
+  y = y_i,
+  p = p_i,
+  e = e_i,
+  Contribution = d_i
+)
+df
+
+t0 = sum(df$Contribution)
+```
+
+Test statistic:
+
+```{r, echo = FALSE}
+print(t0)
+```
+
+Using the chi-squared test with 3 degrees of freedom:
+
+```{r, echo = FALSE}
+pchisq(t0, df = 3, lower.tail = FALSE)
+```
+
+The p-value obtained is greater than $\alpha$, hence we retain the null hypothesis. Thus, the data appears to provide sufficient evidence to indicate that the figures of the current survey agree with the percentages of those in 2012.
+
+```{r, echo = FALSE}
+barplot(df$y, names.arg = df$User, main = 'Observed frequencies')
+barplot(df$e, names.arg = df$User, main = 'Expected frequencies')
+```
+
+## Question 2
+
+A study of patients with insulin-dependent diabetes was conducted to investigate the effects of cigarette smoking on renal and retinal complications. Before examining the results of the study, a researcher expects that the proportions of four different subgroups are as follow:
+
+```{=tex}
+\begin{array} {lcc}
+\text{Subgroup} & \text{Proportion} \\ \hline   
+\text{Nonsmokers} & 0.50 \\
+\text{Current Smokers} & 0.20 \\
+\text{Tobacco Chewers} & 0.10 \\
+\text{Ex-smokers} & 0.20 \\ \hline
+\end{array}
+```
+Of 100 randomly selected patients, there are 44 nonsmokers, 24 current smokers, 13 tobacco chewers and 19 ex-smokers. Should the researcher revise his estimates? Use 0.01 as the level of significance.
+
+## Answer
+
+Significance level: $\alpha = 0.01$.
+
+Hypothesis:
+
+$H_0$ = The distribution of patients obeys the estimated proportions.
+
+$H_1$ = The distribution of patients does not obey the estimated proportions.
+
+Assumptions:
+
+All expected frequencies are sufficiently large (\>5).
+
+Table:
+
+```{r, echo = FALSE}
+y_i = c(44, 24, 13, 19)
+p_i = c(0.5, 0.2, 0.1, 0.2)
+n = sum(y_i)
+e_i = n * p_i
+d_i = ((y_i - e_i)^2)/e_i
+
+df = tibble(
+  Subgroup = c("Nonsmokers", "Current Smokers", "Tobacco Chewers", "Ex-smokers"),
+  y = y_i,
+  p = p_i,
+  e = e_i,
+  Contribution = d_i
+)
+df
+```
+
+Test statistic:
+
+```{r, echo = FALSE}
+t = sum(df$Contribution)
+t
+```
+
+Using the chi-squared test with 3 degrees of freedom:
+
+```{r, echo = FALSE}
+pchisq(t, df = 3, lower.tail = FALSE)
+```
+
+The p-value obtained is greater than $\alpha$, hence we retain the null hypothesis. Thus, the researcher likely does not need to revise his estimates.
+
+```{r, echo = FALSE}
+barplot(df$y, names.arg = df$Subgroup, main = 'Observed frequencies')
+barplot(df$e, names.arg = df$Subgroup, main = 'Expected frequencies')
+```
