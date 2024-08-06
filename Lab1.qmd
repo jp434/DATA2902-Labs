@@ -267,3 +267,80 @@ pchisq(t, df = 11, lower.tail = FALSE)
 ```
 
 Using the significance level of $\alpha = 0.05$, the p-value is drastically smaller. Thus, we reject the null hypothesis. Consequently, there is a statistically significant deviation from a uniform distribution, hence the fatal crashes are not uniformly distributed across the months of the year.
+
+```{r}
+barplot(df$y, names.arg = df$Months, main = 'Observed frequencies')
+barplot(df$e, names.arg = df$Months, main = 'Expected frequencies')
+```
+
+# Pollution
+
+To deal with the water pollution problem, three proposals are suggested:
+
+1.  Remove the industrial plant
+
+2.  Relocate the industrial plant to the river mouth; and
+
+3.  Build a sewage plant.
+
+Thirty government officials are interviewed and their opinions are given below. Test, at the 5% level of significance, the null hypothesis that there is no preference among the three proposals.
+
+```{=tex}
+\begin{array}{lcccc}
+\text{Proposal} & \text{Observed} ~ y_i  & \text{Expected} ~ e_i & (y_i-e_i) & \frac{(y_i-e_i)^2}{e_i} \\  \hline
+\text{Remove the plant} & 6 & 10 & -4 & 1.6\\
+\text{Relocate the plant to river mouth} & 9 & 10 & -1 & 0.1\\
+\text{Build a sewage plant} & 15 & 10 & 5 & 2.5\\ \hline
+\text{Total} & 30 & 30 & 0 & t_0= 4.2 \\ \hline
+\end{array}
+```
+Significance level: $\alpha = 0.05$.
+
+Hypothesis:
+
+$H_0$ : The distribution of votes is uniform.
+
+$H_1$: The distribution of votes is not uniform.
+
+Assumption:
+
+Expected frequencies are sufficiently large (\>5).
+
+Table:
+
+```{r}
+y_i = c(6, 9, 15)
+p_i = c(1, 1, 1)/3
+n = sum(y_i)
+e_i = n * p_i
+d_i = ((y_i - e_i)^2)/e_i
+
+df = tibble(
+  Proposal = c("Remove the plant", "Relocate the plant to river mouth", "Build a sewage plant"),
+  y = y_i,
+  p = p_i,
+  e = e_i,
+  Contribution = d_i
+)
+df
+```
+
+Test statistic:
+
+```{r}
+t = sum(df$Contribution)
+t
+```
+
+Using the chi-squared test with 2 degrees of freedom:
+
+```{r}
+pchisq(t, df = 2, lower.tail = FALSE)
+```
+
+The p-value is therefore greater than $\alpha$, so we retain the null hypothesis. Hence, there is no preference among the three proposals.
+
+```{r}
+barplot(df$y, names.arg = df$Proposal, main = 'Observed frequencies')
+barplot(df$e, names.arg = df$Proposal, main = 'Expected frequencies')
+```
