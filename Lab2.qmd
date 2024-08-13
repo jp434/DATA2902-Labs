@@ -1,0 +1,210 @@
+---
+title: "Lab3"
+format: 
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    embed-resources: true
+toc: true
+editor: visual
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+# Exercises
+
+## Dishonest Dice
+
+A casino is worried about whether or not its die have been tampered with. To test this, a dealer rolls 4 dice 100 times and records how many even numbers (2, 4 or 6) appear.
+
+```{=tex}
+\begin{array} {lccccc}
+\hline
+\text{Number of evens} & 0 & 1 & 2 & 3 & 4 \\
+\text{Number of rolls of 4 dice} & 1 & 15 & 42 & 32 &  10 \\ \hline
+\end{array}
+```
+Can the scientist infer at the 5% significance level that the number of evens when $n = 4$ dice are rolled follows a binomial random variable with $p = \frac{1}{2}$?
+
+Significance level: $\alpha = 0.5$.
+
+Hypothesis:
+
+$H_0$: The number of evens when 4 dice are rolled follows a binomial random variable $X \sim Bin(4, \frac{1}{2})$.
+
+$H_1$: The number of evens when 4 dice are rolled does not follow this binomial distribution.
+
+Assumptions:
+
+The expected frequencies are sufficiently large (all greater than 5).
+
+```{r}
+y = c(1, 15, 42, 32, 10) # input the observed counts
+x = 0:4 # define the corresponding groups
+p = c(1, 4, 6, 4, 1)/16 # expected probabilities obeying the binomial distribution, could also use dbinom
+n = 100
+e = n*p
+d = (y-e)^2 / e
+
+df = tibble(
+  User = c("0", "1", "2", "3", "4"),
+  y = y,
+  p = p,
+  e = e,
+  Contribution = d
+)
+df
+```
+
+Test statistic
+
+```{r}
+t = sum(d)
+t
+```
+
+Using the chi-squared test with 4 degrees of freedom, we obtain a p-value of:
+
+```{r}
+p = pchisq(t, df = 4, lower.tail = F)
+p
+```
+
+Conclusion:
+
+Since the p-value is below the 5% significance level, we reject the null hypothesis in favour of the alternative hypothesis. Thus, the number of evens cannot be modelled via a random variable with $p = \frac{1}{2}$.
+
+## Mammograms
+
+Suppose that among 100,000 women with negative mammograms, 20 will have breast cancer diagnosed within 2 years; and among 100 women with positive mammograms, 10 will have breast cancer diagnosed within 2 years. Clinicians would like to know if there is a relationship between a positive or negative mammogram and developing breast cancer?
+
+```{=tex}
+\begin{array} {l|cc}
+\text{Mammogram \ Breast cancer}& \text{Yes} &  \text{No}\\ \hline
+\text{Positive} &      10 & 90\\  
+\text{Negative} & 20 & 99,980 \\
+\end{array}
+```
+```{r}
+x = matrix(c(10, 20, 90, 99980), ncol = 2)
+colnames(x) = c("Breast cancer: yes", "Breast cancer: no")
+rownames(x) = c("Mammogram: positive", "Mammogram: negative")
+```
+
+1.  Is it appropriate to use a relative risk to quantify the relationship between the risk factor (Mammogram result) and disease (Breast cancer)? If so calculate the relative risk and provide an interpretation.
+
+In this case, the sampling is performed on the risk factor (mammogram result). As a consequence, the relative risk is appropriate to quantify the relationship between risk factor and disease.
+
+The relative risk:
+
+```{r}
+RR = (10/100)/(20/100000)
+```
+
+Women with a positive mammogram are 500 times more likely to develop breast cancer.
+
+2.  Calculate the odds ratio of having breast cancer for positive vs negative mammograms and provide an interpretation.
+
+Odds ratio
+
+```{r}
+OR = (10*99980)/(20*90)
+```
+
+The estimated odds of developing breast cancer for women with a positive mammogram are 555 times the estimated odds of developing breast cancer for women with a negative mammogram.
+
+3.  Calculate a confidence interval for the odds-ratio, is there evidence that there might be a relationship between mammogram test results and breast cancer diagnosis?
+
+Confidence interval for log-odds.
+
+```{r}
+SE = sqrt(1/10 + 1/100 + 1/20 + 1/100000)
+logodds = log(OR)
+L = logodds - 1.96*SE
+R = logodds + 1.96*SE
+ci = c(L, R)
+ci
+```
+
+Confidence interval for odds ratio.
+
+```{r}
+exp(ci)
+```
+
+1 lies outside the confidence interval, therefore there is evidence that there might be a relationship between mammogram test results and breast cancer diagnosis. \
+
+## Soccer Goals
+
+Goals per soccer game arrive at random moments, and could be reasonably modelled by a Poisson process. If so, the total number of goals scored in a soccer game should be a Poisson random variable.
+
+Here are the number of goals scored in each of the $n = 104$ games at the 2015 FIFA Women’s World Cup.
+
+```{r}
+goals <- c(
+  1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 2, 2, 4, 0, 10,
+  0, 1, 1, 2, 3, 0, 4, 1, 3, 6, 0, 1, 0, 10, 1,
+  2, 1, 0, 1, 1, 2, 3, 3, 3, 1, 2, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 2, 0, 1, 0, 2, 2, 0, 1, 2, 1,
+  1, 0, 1, 1, 0, 2, 2, 1, 0, 5, 2, 1, 4, 1, 1,
+  0, 0, 1, 3, 0, 1, 0, 1, 2, 2, 0, 2, 1, 1, 1,
+  0, 1, 0, 1, 2, 1, 2, 0, 2, 1, 0, 1, 5, 2
+)
+observed_goals = table(goals)
+n = 104
+observed_goals
+```
+
+To ensure expected frequencies are sufficiently large, collapse categories 4+.
+
+```{r}
+goal = c("0", "1", "2", "3", "4+")
+fixed_goals = c(30, 40, 20, 6, 8)
+names(fixed_goals) = goal
+fixed_goals
+```
+
+Estimating $\lambda$ as the mean number of goals.
+
+```{r}
+parameter = sum(as.numeric(names(observed_goals)) * (observed_goals / 104))
+```
+
+Then
+
+```{r}
+k = c(0, 1, 2, 3)
+probprelim = parameter^k * exp(-parameter) / factorial(k)
+p = append(probprelim, 1-sum(probprelim))
+p
+e = 104 * p
+e
+d = (fixed_goals - e)^2 / e 
+
+df = tibble(
+  Goals = c("0", "1", "2", "3", "4+"),
+  y = fixed_goals,
+  p = p,
+  e = e,
+  Contribution = d
+)
+df
+```
+
+The test statistic would be:
+
+```{r}
+t = sum(d)
+t
+```
+
+Using the chi-squared distribution with 3 degrees of freedom:
+
+```{r}
+p = pchisq(t, df = 3, lower.tail = F)
+p
+```
+
+At the $\alpha = 0.5$ level of significance, we would therefore retain the null hypothesis. The number of soccer goals per game can thus be appropriately modelled using a Poisson random variable.
