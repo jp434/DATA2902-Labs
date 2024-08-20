@@ -83,7 +83,7 @@ server <- function(input, output) {
         group_by(.data[[input$var_facet]]) %>% 
         summarise(r = cor(.data[[input$var_xaxis]], .data[[input$var_yaxis]], use = "pairwise.complete.obs"))
     })
-}
+} 
 
 # Run the application 
 shinyApp(ui = ui, server = server)
