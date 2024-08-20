@@ -10,7 +10,10 @@
 library(shiny)
 library(tidyverse)
 fdata = read.csv("Crash_Data.csv") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  mutate(
+    month_name = factor(month.abb[month], levels = month.abb)
+  )
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -42,15 +45,14 @@ server <- function(input, output) {
     final_data = reactive({
       fdata %>% 
         filter(year %in% input$year_selection) %>% 
-        group_by(month) %>% 
+        group_by(month_name) %>% 
         count()
     })
  
     output$fatalitiesPlot <- renderPlot({
         # generate bins based on input$bins from ui.R
       final_data() %>% 
-        ggplot() + 
-        aes(x = month, y = n) +
+        ggplot(aes(x = month_name, y = n)) + 
         geom_bar(stat = 'identity') + 
         #geom_col() 
         labs(title = paste(input$year_selection, collapse = ", "))
